@@ -2,6 +2,8 @@ var Lstring = require('../datatypes/lstring'),
     Llist = require('../datatypes/llist'),
     Lset = require('../datatypes/lset');
 
+var types = require('../config').types;
+
 function serialize(data) {
     var keys = Object.keys(data),
         serializedData = {};
@@ -21,13 +23,13 @@ function serialize(data) {
         }
 
         switch (tmp.type) {
-            case 'String':
+            case types.STR:
                 serializedData[key].data = tmp._get();
                 break;
-            case 'List':
+            case types.LST:
                 serializedData[key].data = tmp._lrange(0, tmp._llen() - 1);
                 break;
-            case 'Set':
+            case types.SET:
                 serializedData[key].data = tmp._smembers();
                 break;
         }
@@ -50,23 +52,23 @@ function deserialize(serializedData) {
         }
 
         switch (tmp.type) {
-            case 'String':
+            case types.STR:
                 data[key] = new Lstring(tmp.data);
                 data[key].expiryTime = tmp.expiryTime;
                 break;
-            case 'List':
+            case types.LST:
                 data[key] = new Llist();
                 data[key].expiryTime = tmp.expiryTime;
                 data[key]._rpush(tmp.data);
                 break;
-            case 'Set':
+            case types.SET:
                 data[key] = new Lset();
                 data[key].expiryTime = tmp.expiryTime;
                 data[key]._sadd(tmp.data);
                 break;
         }
     }
-    
+
     return data;
 }
 

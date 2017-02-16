@@ -1,6 +1,8 @@
+var types = require('../config').types;
+
 function Lstring(value) {
     this.data = value;
-    this.type = 'String';
+    this.type = types.STR;
     this.expiryTime = null;
 }
 

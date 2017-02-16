@@ -1,8 +1,10 @@
+var types = require('../config').types;
+
 function Lset(hashFunc) {
     this.hashFunc = hashFunc || JSON.stringify;
     this.size = 0;
     this.data = {};
-    this.type = 'Set';
+    this.type = types.SET;
     this.expiryTime = null;
 }
 

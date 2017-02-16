@@ -4,11 +4,16 @@
   "description": "Light-weight Redis - Holistics interview assignment",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
   },
   "author": "Hoang Do",
   "license": "ISC",
   "dependencies": {
+    "check-types": "^7.1.5",
     "restify": "^4.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }

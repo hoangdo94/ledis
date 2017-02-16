@@ -4,7 +4,8 @@ var Lstring = require('./datatypes/lstring'),
 
 var snapshotService = require('./services/snapshot');
 
-var errMess = require('./config').errMess;
+var types = require('./config').types,
+    errMess = require('./config').errMess;
 
 function Ledis() {
     this.data = {};
@@ -60,47 +61,48 @@ Ledis.prototype = {
 
     // String operations
     _set: function(key, value) {
-        if (this.keyExistWithType(key, 'String')) {
+        if (this.keyExistWithType(key, types.STR)) {
             this.data[key]._set(value);
         } else {
             this.data[key] = new Lstring(value);
         }
+        return 'OK';
     },
 
     _get: function(key) {
-        if (this.keyExistWithType(key, 'String')) {
+        if (this.keyExistWithType(key, types.STR)) {
             return this.data[key]._get();
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return null;
     },
 
     // List operations
     _llen: function(key) {
-        if (this.keyExistWithType(key, 'List')) {
+        if (this.keyExistWithType(key, types.LST)) {
             return this.data[key]._llen();
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return 0;
     },
 
     _rpush: function(key, values) {
-        if (this.keyExistWithType(key, 'List')) {
+        if (this.keyExistWithType(key, types.LST)) {
             return this.data[key]._rpush(values);
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         this.data[key] = new Llist();
         return this.data[key]._rpush(values);
     },
 
     _lpop: function(key) {
-        if (this.keyExistWithType(key, 'List')) {
+        if (this.keyExistWithType(key, types.LST)) {
             var tmp = this.data[key]._lpop();
             if (this.data[key].size == 0) {
                 delete this.data[key];
@@ -108,13 +110,13 @@ Ledis.prototype = {
             return tmp;
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return null;
     },
 
     _rpop: function(key) {
-        if (this.keyExistWithType(key, 'List')) {
+        if (this.keyExistWithType(key, types.LST)) {
             var tmp = this.data[key]._rpop();
             if (this.data[key].size == 0) {
                 delete this.data[key];
@@ -122,59 +124,59 @@ Ledis.prototype = {
             return tmp;
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return null;
     },
 
     _lrange: function(key, start, end) {
-        if (this.keyExistWithType(key, 'List')) {
+        if (this.keyExistWithType(key, types.LST)) {
             return this.data[key]._lrange(start, end);
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return [];
     },
 
     // Set operations
     _sadd: function(key, values) {
-        if (this.keyExistWithType(key, 'Set')) {
+        if (this.keyExistWithType(key, types.SET)) {
             return this.data[key]._sadd(values);
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         this.data[key] = new Lset();
         return this.data[key]._sadd(values);
     },
 
     _scard: function(key) {
-        if (this.keyExistWithType(key, 'Set')) {
+        if (this.keyExistWithType(key, types.SET)) {
             return this.data[key]._scard();
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return 0;
     },
 
     _smembers: function(key) {
-        if (this.keyExistWithType(key, 'Set')) {
+        if (this.keyExistWithType(key, types.SET)) {
             return this.data[key]._smembers();
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return [];
     },
 
     _srem: function(key, values) {
-        if (this.keyExistWithType(key, 'Set')) {
+        if (this.keyExistWithType(key, types.SET)) {
             return this.data[key]._srem(values);
         }
         if (this.keyExist(key)) {
-            return new Error(errMess.WRONG_TYPE);
+            throw new Error(errMess.WRONG_TYPE);
         }
         return 0;
     },
@@ -183,10 +185,10 @@ Ledis.prototype = {
         var sets = [];
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
-            if (this.keyExistWithType(key, 'Set')) {
+            if (this.keyExistWithType(key, types.SET)) {
                 sets.push(this.data[key]);
             } else if (this.keyExist(key)) {
-                return new Error(errMess.WRONG_TYPE);
+                throw new Error(errMess.WRONG_TYPE);
             } else {
                 var tmp = new Lset();
                 sets.push(tmp);
@@ -242,8 +244,17 @@ Ledis.prototype = {
         this._flushdb();
 
         this.data = snapshotService.deserialize(saved);
-        // console.log('current data ', this.data);
-        // console.log('deserialized object', snapshotService.deserialize(saved));
+    },
+
+    // Execute commands
+    exec: function(cmd) {
+        try {
+            var parsed = cmdParser.parse(cmd);
+            console.log(parsed);
+            return this['_' + parsed.cmd].apply(this, parsed.args);
+        } catch (err) {
+            return err.toString();
+        }
     }
 }
 

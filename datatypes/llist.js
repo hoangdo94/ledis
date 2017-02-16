@@ -1,3 +1,5 @@
+var types = require('../config').types;
+
 function Node(value) {
     this.data = value;
     this.previous = null;
@@ -8,7 +10,7 @@ function Llist() {
     this.size = 0;
     this.head = null;
     this.tail = null;
-    this.type = 'List';
+    this.type = types.LST;
     this.expiryTime = null;
 }
 

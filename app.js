@@ -1,36 +1,49 @@
-var Ledis = require('./ledis');
+var restify = require('restify'),
+    checker = require('check-types'),
+    Ledis = require('./ledis'),
+    cmdParser = require('./services/cmd_parser');
+
+var server = restify.createServer({
+    name: 'ledis-server'
+});
+server.use(restify.bodyParser());
 
 var ledis = new Ledis();
 
-ledis._set('foo', 'bar');
-// ledis._set('mon', 10);
-// ledis._set('my', 29.4);
-// ledis._set('mon', 10000);
+server.post('/', function(req, res, next) {
+    try {
+        var parsed = cmdParser.parse(req.body);
+        var result = ledis['_' + parsed.cmd].apply(ledis, parsed.args);
 
-// ledis._flushdb();
+        // Marshalling the result string to be redis-like
+        if (result) {
+            if (checker.string(result)) {
+                if (result == 'OK') {
+                    return res.send(result);
+                }
+                return res.send('"' + result + '"');
+            }
+            if (checker.array(result)) {
+                if (result.length == 0) {
+                    return res.send('empty list or set');
+                }
+                var str = '1) "' + result[0] + '"';
+                for (var i = 1; i < result.length; i++) {
+                    str += ('\n\r' + (i + 1).toString() + ') "' + result[i] + '"');
+                }
+                return res.send(str);
+            }
+            if (checker.number(result)) {
+                return res.send('(integer) ' + result);
+            }
+        }
+        return res.send('(nil)');
+    } catch (err) {
+        return res.send(err.toString());
+    }
+    next();
+});
 
-console.log(ledis._sadd('mon', [1, 2, 3, 4]));
-console.log(ledis._sadd('my', [1, 3, 5, 6]));
-console.log(ledis._sinter(['mon', 'my']));
-console.log(ledis._sadd('huy', [1, 1, 4, 5]));
-console.log(ledis._sinter(['mon', 'my', 'huy']));
-console.log(ledis._sinter(['mon', 'bar']));
-console.log(ledis._expire('mon', 10));
-
-var saved = ledis._save();
-
-console.log(saved);
-
-ledis._del('huy');
-
-console.log(ledis._keys());
-
-ledis._set('huy', 123123);
-
-console.log(ledis._sadd('huy', 10));
-
-ledis._load(saved);
-
-console.log(ledis._sadd('huy', 10));
-
-console.log(ledis._keys());
+server.listen(8080, function() {
+    console.log('%s listening at %s', server.name, server.url);
+});
