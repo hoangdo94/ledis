@@ -1,0 +1,14 @@
+{
+  "name": "Ledis",
+  "version": "1.0.0",
+  "description": "Light-weight Redis - Holistics interview assignment",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hoang Do",
+  "license": "ISC",
+  "dependencies": {
+    "restify": "^4.3.0"
+  }
+}
