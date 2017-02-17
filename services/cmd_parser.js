@@ -6,9 +6,14 @@ var _ = require('underscore'),
 
 function parse(cmd) {
     var cmdString = cmd.trim() + ' ';
-    if (!(/(((("(\\.|[^"\\])*")|('(\\.|[^'\\])*')|([^'"\s]+))\s)(\s*))+/).test(cmdString)) {
+
+    // Check for syntax error
+    var test = cmdString.match(/(((("(\\.|[^"\\])*")|('(\\.|[^'\\])*')|([^'"\s]+))\s)(\s*))+/g);
+    if (test.length != 1) {
       throw new Error(errMess.SYNTAX);
     }
+
+    // Parse arguments
     var tmp = _.map(cmdString.match(/(("(\\.|[^"\\])*")|('(\\.|[^'\\])*')|([^'"\s]+))\s/g),
         function(i) {
             i = i.trim();
