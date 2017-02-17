@@ -29,7 +29,7 @@ function parse(cmd) {
                 throw new Error(errMess.WRONG_ARGS_NUM.replace('$$', cmd));
             }
             if (argType == types.NUM) {
-                if (!(/^(+|-)?\d+$/).test(arg)) {
+                if (!(/^[+|-]?\d+$/).test(arg)) {
                     throw new Error(errMess.WRONG_ARGS_TYPE);
                 }
                 args.push(parseInt(arg));
