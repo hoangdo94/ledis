@@ -17,7 +17,7 @@ server.post('/', function(req, res, next) {
         var result = ledis['_' + parsed.cmd].apply(ledis, parsed.args);
 
         // Marshalling the result string to be redis-like
-        if (result) {
+        if (result != null) {
             if (checker.string(result)) {
                 if (_.contains(['set', 'save', 'restore'], parsed.cmd)) {
                     // These commands return status text, not the value
