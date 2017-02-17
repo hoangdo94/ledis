@@ -1,6 +1,3 @@
-var check = require('check-types');
-
-
 var t = {
   NUM: 'Number',
   STR: 'String',
@@ -28,22 +25,27 @@ var cmdPrototypes = {
     'expire': [t.STR, t.NUM],
     'ttl': [t.STR],
     'save': [],
-    'load': []
+    'restore': []
 }
 
 var errMess = {
     WRONG_TYPE: 'Operation against a key holding the wrong kind of value',
-    WRONG_ARGS: 'Wrong args',
-    NO_CMD: 'No cmd'
+    WRONG_ARGS_TYPE: 'Value is not an integer or out of range',
+    WRONG_ARGS_NUM: 'Wong number of arguments for \'$$\' command',
+    NO_CMD: '\'$$\' command is not exist/implemeted',
+    NO_SNAPSHOT: 'There is no saved snapshot'
 }
 
 var returnCode = {
 
 }
 
+var snapshotDir = 'snapshots/';
+
 module.exports = {
   types: t,
   cmdPrototypes: cmdPrototypes,
   errMess: errMess,
-  returnCode: returnCode
+  returnCode: returnCode,
+  snapshotDir: snapshotDir
 }

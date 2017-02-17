@@ -2,6 +2,7 @@
   "name": "Ledis",
   "version": "1.0.0",
   "description": "Light-weight Redis - Holistics interview assignment",
+  "repository": "https://github.com/hoangdo94/ledis",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "check-types": "^7.1.5",
-    "restify": "^4.3.0"
+    "jsonfile": "^2.4.0",
+    "restify": "^4.3.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

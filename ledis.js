@@ -240,22 +240,15 @@ Ledis.prototype = {
         return snapshotService.serialize(this.data);
     },
 
-    _load: function(saved) {
+    _restore: function() {
         this._flushdb();
 
-        this.data = snapshotService.deserialize(saved);
-    },
+        var snapshot = snapshotService.deserialize();
 
-    // Execute commands
-    exec: function(cmd) {
-        try {
-            var parsed = cmdParser.parse(cmd);
-            console.log(parsed);
-            return this['_' + parsed.cmd].apply(this, parsed.args);
-        } catch (err) {
-            return err.toString();
-        }
-    }
+        this.data = snapshot.data;
+
+        return ('Restored data from the latest snapshot (' + snapshot.filename + ')');
+    },
 }
 
 module.exports = Ledis;

@@ -1,5 +1,6 @@
 var restify = require('restify'),
     checker = require('check-types'),
+    _ = require('underscore'),
     Ledis = require('./ledis'),
     cmdParser = require('./services/cmd_parser');
 
@@ -18,18 +19,20 @@ server.post('/', function(req, res, next) {
         // Marshalling the result string to be redis-like
         if (result) {
             if (checker.string(result)) {
-                if (result == 'OK') {
+                if (_.contains(['set', 'save', 'restore'], parsed.cmd)) {
+                    // These commands return status text, not the value
                     return res.send(result);
                 }
                 return res.send('"' + result + '"');
             }
             if (checker.array(result)) {
                 if (result.length == 0) {
-                    return res.send('empty list or set');
+                    return res.send('(empty list or set)');
                 }
                 var str = '1) "' + result[0] + '"';
                 for (var i = 1; i < result.length; i++) {
-                    str += ('\n\r' + (i + 1).toString() + ') "' + result[i] + '"');
+                    str += ('\n\r $1) "$2"').replace('$1', i + 1)
+                        .replace('$2', result[i]);
                 }
                 return res.send(str);
             }

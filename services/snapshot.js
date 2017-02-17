@@ -1,8 +1,22 @@
-var Lstring = require('../datatypes/lstring'),
+var fs = require('fs'),
+    path = require('path'),
+    _ = require('underscore'),
+    Lstring = require('../datatypes/lstring'),
     Llist = require('../datatypes/llist'),
-    Lset = require('../datatypes/lset');
+    Lset = require('../datatypes/lset'),
+    conf = require('../config'),
+    errMess = conf.errMess,
+    types = conf.types,
+    snapshotDir = conf.snapshotDir;
 
-var types = require('../config').types;
+function getMostRecentFileName(dir) {
+    var files = fs.readdirSync(dir);
+
+    return _.max(files, function(f) {
+        var fullpath = path.join(dir, f);
+        return fs.statSync(fullpath).ctime;
+    });
+}
 
 function serialize(data) {
     var keys = Object.keys(data),
@@ -35,10 +49,24 @@ function serialize(data) {
         }
     }
 
-    return serializedData;
+    var filename = Date.now() + '.json';
+
+    fs.writeFileSync(snapshotDir + filename, JSON.stringify(serializedData));
+
+    return ('Saved snapshot to ' + filename);
 }
 
-function deserialize(serializedData) {
+function deserialize() {
+
+    var filename = getMostRecentFileName(snapshotDir);
+
+    // There's no saved snapshot
+    if (filename.indexOf('.json') == -1) {
+        throw new Error(errMess.NO_SNAPSHOT);
+    }
+
+    var serializedData = JSON.parse(fs.readFileSync(snapshotDir + filename));
+
     var keys = Object.keys(serializedData),
         data = {};
 
@@ -69,7 +97,10 @@ function deserialize(serializedData) {
         }
     }
 
-    return data;
+    return {
+        filename: filename,
+        data: data
+    };
 }
 
 module.exports = {

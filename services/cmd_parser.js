@@ -11,7 +11,7 @@ function parse(cmd) {
     var cmdPrototype = cmdPrototypes[cmd];
 
     if (!cmdPrototype) {
-        throw new Error(errMess.NO_CMD);
+        throw new Error(errMess.NO_CMD.replace('$$', cmd));
     }
 
     var hasArrayArg = false;
@@ -19,13 +19,19 @@ function parse(cmd) {
         var argType = cmdPrototype[i];
         if (argType == types.ARR) {
             hasArrayArg = true;
+            if (tmp.length < 1) {
+                throw new Error(errMess.WRONG_ARGS_NUM.replace('$$', cmd));
+            }
             args.push(tmp);
         } else {
             var arg = tmp.shift();
             if (!arg) {
-                throw new Error(errMess.WRONG_ARGS);
+                throw new Error(errMess.WRONG_ARGS_NUM.replace('$$', cmd));
             }
             if (argType == types.NUM) {
+                if (!(/^\d+$/).test(arg)) {
+                    throw new Error(errMess.WRONG_ARGS_TYPE);
+                }
                 args.push(parseInt(arg));
             } else {
                 args.push(arg);
@@ -34,7 +40,7 @@ function parse(cmd) {
     }
 
     if (!hasArrayArg && tmp.length > 0) {
-        throw new Error(errMess.WRONG_ARGS);
+        throw new Error(errMess.WRONG_ARGS_NUM.replace('$$', cmd));
     }
 
     return {
