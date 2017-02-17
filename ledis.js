@@ -1,6 +1,7 @@
 var Lstring = require('./datatypes/lstring'),
     Llist = require('./datatypes/llist'),
-    Lset = require('./datatypes/lset');
+    Lset = require('./datatypes/lset'),
+    _ = require('underscore');
 
 var snapshotService = require('./services/snapshot');
 
@@ -199,7 +200,11 @@ Ledis.prototype = {
 
     // Data Expirartion
     _keys: function() {
-        return Object.keys(this.data);
+        var self = this;
+        return _.filter(Object.keys(this.data), function(key) {
+            return self.keyExist(key);
+        });
+
     },
 
     _del: function(key) {
@@ -237,10 +242,7 @@ Ledis.prototype = {
 
     // Snapshot
     _save: function() {
-        var res = snapshotService.serialize(this.data);
-        console.log(this.data);
-        console.log(res);
-        return res;
+        return snapshotService.serialize(this.data);
     },
 
     _restore: function() {
