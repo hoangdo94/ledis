@@ -7,6 +7,8 @@ var restify = require('restify'),
 var server = restify.createServer({
     name: 'ledis-server'
 });
+
+server.use(restify.CORS());
 server.use(restify.bodyParser());
 
 var ledis = new Ledis();

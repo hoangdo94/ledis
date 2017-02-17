@@ -237,7 +237,10 @@ Ledis.prototype = {
 
     // Snapshot
     _save: function() {
-        return snapshotService.serialize(this.data);
+        var res = snapshotService.serialize(this.data);
+        console.log(this.data);
+        console.log(res);
+        return res;
     },
 
     _restore: function() {
