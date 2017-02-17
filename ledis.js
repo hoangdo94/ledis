@@ -212,7 +212,7 @@ Ledis.prototype = {
         for (var i = 0; i < keys.length; i++) {
             this._del(keys[i]);
         }
-        return 1;
+        return 'OK';
     },
 
     _expire: function(key, seconds) {

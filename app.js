@@ -21,7 +21,7 @@ server.post('/', function(req, res, next) {
         // Marshalling the result string to be redis-like
         if (result != null) {
             if (checker.string(result)) {
-                if (_.contains(['set', 'save', 'restore'], parsed.cmd)) {
+                if (_.contains(['set', 'save', 'restore', 'flushdb'], parsed.cmd)) {
                     // These commands return status text, not the value
                     return res.send(result);
                 }
