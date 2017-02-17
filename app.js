@@ -25,7 +25,8 @@ server.post('/', function(req, res, next) {
                     // These commands return status text, not the value
                     return res.send(result);
                 }
-                return res.send('"' + result + '"');
+                // Format output string
+                return res.send('"' + result.replace(/"/g, '\\"').replace(/\\/g, '\\\\') + '"');
             }
             if (checker.array(result)) {
                 if (result.length == 0) {

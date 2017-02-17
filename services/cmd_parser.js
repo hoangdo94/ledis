@@ -1,10 +1,26 @@
-var conf = require('../config'),
+var _ = require('underscore'),
+    conf = require('../config'),
     types = conf.types,
     cmdPrototypes = conf.cmdPrototypes,
     errMess = conf.errMess;
 
 function parse(cmd) {
-    var tmp = cmd.trim().split(/\s+/);
+    var cmdString = cmd.trim() + ' ';
+    if (!(/(((("(\\.|[^"\\])*")|('(\\.|[^'\\])*')|([^'"\s]+))\s)(\s*))+/).test(cmdString)) {
+      throw new Error(errMess.SYNTAX);
+    }
+    var tmp = _.map(cmdString.match(/(("(\\.|[^"\\])*")|('(\\.|[^'\\])*')|([^'"\s]+))\s/g),
+        function(i) {
+            i = i.trim();
+            if (i.startsWith('"') && i.endsWith('"')) {
+                i = i.substring(1, i.length-1).replace(/\\"/g, '"');
+            }
+            if (i.startsWith('\'') && i.endsWith('\'')) {
+                i = i.substring(1, i.length-1).replace(/\\'/g, '\'');
+            }
+            return i;
+        });
+
     var cmd = tmp.shift().toLowerCase();
     var args = [];
 

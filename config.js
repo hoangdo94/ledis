@@ -32,7 +32,8 @@ var errMess = {
     WRONG_TYPE: 'Operation against a key holding the wrong kind of value',
     WRONG_ARGS_TYPE: 'Value is not an integer or out of range',
     WRONG_ARGS_NUM: 'Wong number of arguments for \'$$\' command',
-    NO_CMD: '\'$$\' command is not exist/implemeted',
+    SYNTAX: 'Syntax error',
+    NO_CMD: 'Unknown command \'$$\'',
     NO_SNAPSHOT: 'There is no saved snapshot'
 }
 
