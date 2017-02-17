@@ -9,8 +9,9 @@ function parse(cmd) {
 
     // Check for syntax error
     var test = cmdString.match(/(((("(\\.|[^"\\])*")|('(\\.|[^'\\])*')|([^'"\s]+))\s)(\s*))+/g);
-    if (test.length != 1) {
-      throw new Error(errMess.SYNTAX);
+
+    if (test.length == 0 || (test.length > 0 && cmdString.replace(test[0], "").trim().length > 0)) {
+      	throw new Error(errMess.SYNTAX);
     }
 
     // Parse arguments
@@ -46,7 +47,7 @@ function parse(cmd) {
             args.push(tmp);
         } else {
             var arg = tmp.shift();
-            if (!arg) {
+            if (!arg && arg != "") {
                 throw new Error(errMess.WRONG_ARGS_NUM.replace('$$', cmd));
             }
             if (argType == types.NUM) {
